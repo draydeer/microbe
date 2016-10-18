@@ -1,0 +1,16 @@
+{
+  "name": "draydeer/microbe",
+  "description": "cross-db OM (object mapper)",
+  "type": "library",
+  "minimum-stability": "dev",
+
+  "require": {
+    "php": ">=5.5"
+  },
+
+  "autoload": {
+    "psr-4": {
+      "Microbe\\": "src/"
+    }
+  }
+}
