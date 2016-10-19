@@ -318,16 +318,16 @@ class AdapterMySQL extends MicrobeAdapter
         }
 
         $query = 'INSERT INTO ' . $metadata->schema . ' (';
-        $value = ') VALUES (';
+        $queryValues = ') VALUES (';
 
         foreach ($value as $k => $v) {
             $query.= $k . ',';
-            $value.= ':' . $k . ',';
+            $queryValues.= ':' . $k . ',';
         }
 
         while (1) {
             try {
-                $_result = $this->_client->prepare(trim($query, ',') . trim($value, ',') . ')')->execute($value);
+                $_result = $this->_client->prepare(trim($query, ',') . trim($queryValues, ',') . ')')->execute($value);
 
                 if ($_result) {
                     return $this->_client->lastInsertId(static::getDialectForLastInsertID($metadata->schema . '_' . $metadata->pk));
@@ -358,14 +358,14 @@ class AdapterMySQL extends MicrobeAdapter
         }
 
         $query = 'INSERT INTO ' . $metadata->schema . ' (';
-        $value = '(';
+        $queryValues = '(';
 
         foreach ($value[0] as $k => $v) {
             $query.= $k . ',';
-            $value.= '?,';
+            $queryValues.= '?,';
         }
 
-        $value = ') VALUES ' . str_repeat(trim($value, ',') . '),', count($value));
+        $queryValues = ') VALUES ' . str_repeat(trim($queryValues, ',') . '),', count($value));
         $template = [];
 
         foreach ($value as $v) foreach ($v as $v) {
@@ -374,7 +374,7 @@ class AdapterMySQL extends MicrobeAdapter
 
         while (1) {
             try {
-                return $this->_client->prepare(trim($query, ',') . trim($value, ','))->execute($template);
+                return $this->_client->prepare(trim($query, ',') . trim($queryValues, ','))->execute($template);
             } catch (\Exception $e) {
                 if ($forceThrow || $this->processExceptionOnRequest($e) === false) {
                     throw RequestException::createFromException($e);
@@ -601,7 +601,7 @@ class AdapterMySQL extends MicrobeAdapter
                 $result = $this->doRequest(
                     $metadata,
                     'UPDATE ' . $metadata->schema . ' SET ' . static::getBindingKeyValueFromKeys($value),
-                    [ $metadata->pk . '=:' . $metadata->pk, $value ],
+                    [$metadata->pk . '=:' . $metadata->pk, $value],
                     null
                 );
 

@@ -13,9 +13,9 @@ class CriteriaMySQL extends MicrobeCriteria
 {
     use TraitDialectMySQL;
 
-    const
-        VAL_EQ          = '=',
-        VAL_GE          = '>=';
+    const VAL_EQ = '=';
+
+    const VAL_GE = '>=';
 
     /**
      *
@@ -28,12 +28,12 @@ class CriteriaMySQL extends MicrobeCriteria
       & $paramBind = []
     )
     {
-        $_querySimple = '';
+        $querySimple = '';
 
         if (is_array($param)) {
-            $_dialectEOL = static::getDialectForEOL();
+            $dialectEOL = static::getDialectForEOL();
 
-            $_query = '';
+            $query = '';
 
             // block of bind values
             if (isset($param['#'])) {
@@ -44,7 +44,7 @@ class CriteriaMySQL extends MicrobeCriteria
 
             foreach ($param as $I => $V) {
                 if (is_array($V)) {
-                    $_query.= '(' . static::compileParametrized(
+                    $query.= '(' . static::compileParametrized(
                         $alias,
                         $V,
                         true,
@@ -53,47 +53,41 @@ class CriteriaMySQL extends MicrobeCriteria
                     ) . ') OR ';
                 } else {
                     if (is_numeric($I)) {
-                        $_querySimple.= '(' . $V . ')';
+                        $querySimple.= '(' . $V . ')';
 
                         unset($param[$I]);
                     } else {
-                        $_querySimple.= $alias . '.' . $I . '=:' . $I;
+                        $querySimple.= $alias . '.' . $I . '=:' . $I;
 
                         $paramBind[$I] = $V;
                     }
 
-                    $_querySimple.= ' AND ';
+                    $querySimple.= ' AND ';
                 }
             }
 
-            if (empty($_query) === false) {
-                $_querySimple = (empty($_querySimple) ? null : '(' . $_querySimple . $_dialectEOL . ') OR ') . substr($_query, 0, - 4);
+            if (empty($query) === false) {
+                $querySimple = (empty($querySimple) ? null : '(' . $querySimple . $dialectEOL . ') OR ') . substr($query, 0, - 4);
             } else {
-                $_querySimple.= $_dialectEOL;
+                $querySimple.= $dialectEOL;
             }
         } else {
-            $_querySimple = $alias . '.' . $pk . '=:_pk';
+            $querySimple = $alias . '.' . $pk . '=:_pk';
 
             $paramBind['_pk'] = $param;
         }
 
         if ($forceQuery) {
-            return $_querySimple;
+            return $querySimple;
         }
 
-        return [
-            $_querySimple,
-            $paramBind
-        ];
+        return [$querySimple, $paramBind];
     }
 
     /**
      *
      */
-    protected function getRight(
-        $alias,
-        $aliasBind
-    )
+    protected function getRight($alias, $aliasBind)
     {
         if ($alias === null) {
             return ':' . $aliasBind;
@@ -105,10 +99,7 @@ class CriteriaMySQL extends MicrobeCriteria
     /**
      *
      */
-    public function _eq(
-        $L,
-        $R = null
-    )
+    public function _eq($L, $R = null)
     {
         $this->CriteriaReference[] = $this->L . '.' . $L . self::VAL_EQ . $this->getRight($R, $L);
 
