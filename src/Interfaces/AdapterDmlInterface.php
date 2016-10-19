@@ -62,8 +62,8 @@ interface AdapterDmlInterface
     public function _selChunk(
         MicrobeModelMetadata $model,
         $condition = null,
-        $l = 1,
-        $o = 0,
+        $limit = 1,
+        $offset = 0,
         $forceThrow = false
     );
 

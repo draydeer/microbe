@@ -439,8 +439,8 @@ class AdapterMongo extends MicrobeAdapter
     public function _selChunk(
         MicrobeModelMetadata $metadata,
         $param = null,
-        $l = 1,
-        $o = 0,
+        $limit = 1,
+        $offset = 0,
         $forceThrow = false
     )
     {
@@ -457,7 +457,7 @@ class AdapterMongo extends MicrobeAdapter
                 $cursor = $this->_dbTarget->{$metadata->schema}->find($param ? $param : [])->batchSize($this->_curBatchSize);
 
                 $this->prepareExtra($cursor, [
-                    'l' => $l, 'o' => $o,
+                    'limit' => $limit, 'offset' => $offset,
                 ]);
 
                 return static::getFetchable($cursor, $this->_curTimeout);

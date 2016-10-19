@@ -109,10 +109,7 @@ class AdapterMySQL extends MicrobeAdapter
     /**
      *
      */
-    public static function getCondition(
-        $model,
-        $param = null
-    )
+    public static function getCondition($model, $param = null)
     {
         if ($model instanceof CriteriaMySQL) {
             return $model->getCondition();
@@ -425,8 +422,8 @@ class AdapterMySQL extends MicrobeAdapter
     public function _selChunk(
         MicrobeModelMetadata $metadata,
         $param = null,
-        $l = 1,
-        $o = 0,
+        $limit = 1,
+        $offset = 0,
         $forceThrow = false
     )
     {
@@ -440,7 +437,7 @@ class AdapterMySQL extends MicrobeAdapter
                     $metadata,
                     'SELECT ' . $metadata->schema . '.* FROM ' . $metadata->schema,
                     static::getCondition($metadata, $param),
-                    [ 'l' => $l, 'o' => $o ]
+                    ['limit' => $limit, 'offset' => $offset]
                 );
 
                 return static::getFetchable($cursor);
@@ -472,7 +469,7 @@ class AdapterMySQL extends MicrobeAdapter
                 $cursor = $this->doRequest(
                     $metadata,
                     'SELECT ' . $metadata->schema . '.* FROM ' . $metadata->schema,
-                    [ $field . ' IN (' . trim(str_repeat('?,', count($in)), ',') . ')', $in ],
+                    [$field . ' IN (' . trim(str_repeat('?,', count($in)), ',') . ')', $in],
                     null
                 );
 
@@ -505,7 +502,7 @@ class AdapterMySQL extends MicrobeAdapter
                 $cursor = $this->doRequest(
                     $metadata,
                     'SELECT ' . $metadata->schema . '.* FROM ' . $metadata->schema,
-                    [ $metadata->pk . '=:' . $metadata->pk, [ $metadata->pk => $this->getPKValue($value) ] ],
+                    [$metadata->pk . '=:' . $metadata->pk, [$metadata->pk => $this->getPKValue($value)]],
                     null
                 );
 
@@ -537,8 +534,8 @@ class AdapterMySQL extends MicrobeAdapter
             try {
                 $result = $this->doRequest(
                     $metadata,
-                    'UPDATE ' . $metadata->schema . ' SET ' . rtrim(P::toString(P::map($value, function ($v, $k) { return "$k=:$k,"; })), ','),
-                    [ $metadata->pk . '=:' . $metadata->pk, $value ],
+                    'UPDATE ' . $metadata->schema . ' SET ' . static::getBindingKeyValueFromKeys($value),
+                    [$metadata->pk . '=:' . $metadata->pk, $value],
                     null
                 );
 
@@ -570,8 +567,8 @@ class AdapterMySQL extends MicrobeAdapter
             try {
                 $result = $this->doRequest(
                     $metadata,
-                    'UPDATE ' . $metadata->schema . ' SET ' . rtrim(P::toString(P::map($value, function ($v, $k) { return "$k=:$k,"; })), ','),
-                    [ $metadata->pk . '=:' . $metadata->pk, $value ],
+                    'UPDATE ' . $metadata->schema . ' SET ' . static::getBindingKeyValueFromKeys($value),
+                    [$metadata->pk . '=:' . $metadata->pk, $value],
                     null
                 );
 
@@ -603,7 +600,7 @@ class AdapterMySQL extends MicrobeAdapter
             try {
                 $result = $this->doRequest(
                     $metadata,
-                    'UPDATE ' . $metadata->schema . ' SET ' . rtrim(P::toString(P::map($value, function ($v, $k) { return "$k=:$k,"; })), ','),
+                    'UPDATE ' . $metadata->schema . ' SET ' . static::getBindingKeyValueFromKeys($value),
                     [ $metadata->pk . '=:' . $metadata->pk, $value ],
                     null
                 );
@@ -636,8 +633,8 @@ class AdapterMySQL extends MicrobeAdapter
             try {
                 $result = $this->doRequest(
                     $metadata,
-                    'UPDATE ' . $metadata->schema . ' SET ' . rtrim(P::toString(P::map($value, function ($v, $k) { return "$k=:$k,"; })), ','),
-                    [ $metadata->pk . '=:' . $metadata->pk, $value ],
+                    'UPDATE ' . $metadata->schema . ' SET ' . static::getBindingKeyValueFromKeys($value),
+                    [$metadata->pk . '=:' . $metadata->pk, $value],
                     null
                 );
 

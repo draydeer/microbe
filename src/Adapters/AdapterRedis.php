@@ -3,7 +3,7 @@
 namespace Microbe\Adapters;
 
 use Microbe\Adapters\ClientsExtensions\ClientExtensionRedis;
-use Microbe\Exceptions\NotImplementedAdapterNativeClientException;
+use Microbe\Exceptions\Adapter\AdapterNativeClientNotImplementedException;
 use Microbe\MicrobeAdapter;
 use Microbe\MicrobeModelMetadata;
 use Microbe\MicrobeModel;
@@ -15,9 +15,9 @@ use Microbe\MicrobeModel;
 class AdapterRedis extends MicrobeAdapter
 {
 
-    const
-        TYP_WATCH_SIMPLE = 2,
-        TYP_WATCH_COMPLEX = 3;
+    const TYP_WATCH_SIMPLE = 2;
+
+    const TYP_WATCH_COMPLEX = 3;
 
     /** @var string $PK */
     protected static $PK = 'id';
@@ -45,7 +45,7 @@ class AdapterRedis extends MicrobeAdapter
     {
         try {
             if (class_exists('\\Redis') === false) {
-                throw new NotImplementedAdapterNativeClientException('Requires: Redis');
+                throw new AdapterNativeClientNotImplementedException('Requires: Redis');
             }
 
             $this->_client = new \Redis();
@@ -70,12 +70,12 @@ class AdapterRedis extends MicrobeAdapter
     )
     {
         if (isset($param[$model->pk])) {
-            $_result = $this->_client->hGetAll($param[$model->pk]);
+            $result = $this->_client->hGetAll($param[$model->pk]);
 
-            if (empty($_result) === false) {
-                $_result[$model->pk] = $param[$model->pk];
+            if (empty($result) === false) {
+                $result[$model->pk] = $param[$model->pk];
 
-                return [ $_result ];
+                return [$result];
             }
         }
 
@@ -88,8 +88,8 @@ class AdapterRedis extends MicrobeAdapter
     public function _selChunk(
         MicrobeModelMetadata $model,
         $param,
-        $l = 1,
-        $o = 0
+        $limit = 1,
+        $offset = 0
     )
     {
         if (isset($param[$model->pk])) {

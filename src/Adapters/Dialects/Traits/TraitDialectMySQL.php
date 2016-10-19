@@ -32,4 +32,18 @@ trait TraitDialectMySQL
     {
         return null;
     }
+
+    /**
+     *
+     */
+    public static function getBindingKeyValueFromKeys($map)
+    {
+        $result = '';
+
+        foreach ($map as $k => $v) {
+            $result .= "$k=:$k,";
+        }
+
+        return rtrim($result, ',');
+    }
 }

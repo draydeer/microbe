@@ -25,8 +25,8 @@ class AdapterMemory extends MicrobeAdapter
     /** @var array $_container */
     public $_container = [];
 
-    /** @var int $_containerIndex */
-    protected $_containerIndex = 1;
+    /** @var int $_containerAutoIncrement */
+    protected $_containerAutoIncrement = 1;
 
     /**
      *
@@ -71,12 +71,7 @@ class AdapterMemory extends MicrobeAdapter
                                 break;
 
                             case '$in':
-                                $fetch &= in_array($v[$field], $condition[1], true);
-
-                                break;
-
-                            case '$like':
-                                $fetch &= filter_var($v[$field], FILTER_VALIDATE_REGEXP, $condition[1]) !== false;
+                                $fetch &= in_array($v[$field], is_array($condition[1]) ? $condition[1] : [$condition[1]], true);
 
                                 break;
 
@@ -92,6 +87,11 @@ class AdapterMemory extends MicrobeAdapter
 
                             case '$ne':
                                 $fetch &= $v[$field] !== $condition[1];
+
+                                break;
+
+                            case '$regex':
+                                $fetch &= filter_var($v[$field], FILTER_VALIDATE_REGEXP, $condition[1]) !== false;
 
                                 break;
 
@@ -332,13 +332,7 @@ class AdapterMemory extends MicrobeAdapter
 
         while (1) {
             try {
-                $patch = [];
-
                 foreach ($this->doRequest($metadata, null, $param, $extra) as $k => $v) {
-                    $patch[$k] = true;
-                }
-
-                foreach ($patch as $k => $v) {
                     unset($this->_container[$k]);
                 }
 
@@ -368,7 +362,7 @@ class AdapterMemory extends MicrobeAdapter
 
         while (1) {
             try {
-                $value[$metadata->pk] = $this->_containerIndex ++;
+                $value[$metadata->pk] = $this->_containerAutoIncrement ++;
 
                 $this->_container[$value[$metadata->pk]] = $value;
 
@@ -536,13 +530,7 @@ class AdapterMemory extends MicrobeAdapter
 
         while (1) {
             try {
-                $patch = [];
-
                 foreach ($this->doRequest($metadata, null, $param) as $k => $v) {
-                    $patch[$k] = $value;
-                }
-
-                foreach ($patch as $k => $v) {
                     $this->_container[$k] = $v;
                 }
 
@@ -572,14 +560,8 @@ class AdapterMemory extends MicrobeAdapter
 
         while (1) {
             try {
-                $patch = [];
-
                 foreach ($this->doRequest($metadata, null, $param) as $k => $v) {
-                    $patch[$k] = array_merge($this->_container[$k], $value);
-                }
-
-                foreach ($patch as $k => $v) {
-                    $this->_container[$k] = $v;
+                    $this->_container[$k] = array_merge($this->_container[$k], $value);
                 }
 
                 return true;
@@ -608,14 +590,8 @@ class AdapterMemory extends MicrobeAdapter
 
         while (1) {
             try {
-                $patch = [];
-
                 foreach ($this->doRequest($metadata, null, [$metadata->pk => $value[$metadata->pk]]) as $k => $v) {
-                    $patch[$k] = array_merge($this->_container[$k], $value);
-                }
-
-                foreach ($patch as $k => $v) {
-                    $this->_container[$k] = $v;
+                    $this->_container[$k] = array_merge($this->_container[$k], $value);
                 }
 
                 return true;
@@ -644,13 +620,7 @@ class AdapterMemory extends MicrobeAdapter
 
         while (1) {
             try {
-                $patch = [];
-
                 foreach ($this->doRequest($metadata, null, [$metadata->pk = $value[$metadata->pk]]) as $k => $v) {
-                    $patch[$k] = $value;
-                }
-
-                foreach ($patch as $k => $v) {
                     $this->_container[$k] = $v;
                 }
 
